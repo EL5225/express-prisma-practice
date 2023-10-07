@@ -11,16 +11,46 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
-  post  Post[]
+  id      Int      @id @default(autoincrement())
+  name    String
+  email   String   @unique
+  post    Post[]
+  Profile Profile?
+}
+
+model Profile {
+  id             Int    @id @default(autoincrement())
+  identityType   String
+  identityNumber String
+  userId         Int    @unique
+  user           User   @relation(fields: [userId], references: [id])
 }
 
 model Post {
   id        Int     @id @default(autoincrement())
   title     String
+  body      String
   published Boolean @default(false)
   authorId  Int
   author    User    @relation(fields: [authorId], references: [id])
+
+  CategoriesOnPosts CategoriesOnPosts[]
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  CategoriesOnPosts CategoriesOnPosts[]
+}
+
+model CategoriesOnPosts {
+  postId     Int
+  post       Post     @relation(fields: [postId], references: [id])
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  assignedAt DateTime @default(now())
+  assignedBy String?
+
+  @@id([postId, categoryId])
 }
