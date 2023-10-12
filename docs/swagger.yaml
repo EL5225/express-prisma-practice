@@ -1,0 +1,316 @@
+openapi: 3.0.3
+info:
+  title: Prisma Practice
+  description: |-
+    API Docs
+  contact:
+    email: luthfiramadhan155@gmail.com
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+tags:
+  - name: users
+    description: Operations about user
+  - name: posts
+    description: Operations about user
+paths:
+  /users:
+    post:
+      tags:
+        - users
+      summary: create new user
+      description: create a new user
+      operationId: post-register-user
+      requestBody:
+        $ref: "#/components/requestBodies/CreateUser"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: Luthfi
+                        email:
+                          type: string
+                          example: l@gmail.com
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: 2022-01-01T00:00:00.000Z
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Bad Request
+    get:
+      tags:
+        - users
+      summary: get all users
+      description: get all users
+      parameters:
+        - in: query
+          name: page
+          description: page of users
+          schema:
+            type: number
+        - in: query
+          name: limit
+          description: limit per page
+          schema:
+            type: number
+        - in: query
+          name: filter
+          description: filtering page "asc" or "desc"
+          schema:
+            type: string
+            default: "asc"
+      operationId: get-all-users
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          pagination:
+                            $ref: "#components/schemas/Pagination"
+                          usersData:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/UserModel"
+
+  /users/{id}:
+    get:
+      tags:
+        - "users"
+      summary: get user by id
+      description: get user by id
+      operationId: get-user-by-id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserModel"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Bad Request
+                  data:
+                    type: string
+                    example: "User not found with id: 2"
+    put:
+      tags:
+        - "users"
+      summary: update user by id
+      description: update user by id
+      operationId: update-user-by-id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: "#/components/requestBodies/CreateUser"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserModel"
+    delete:
+      tags:
+        - "users"
+      summary: delete user by id
+      description: delete user by id
+      operationId: delete-user-by-id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserModel"
+  /posts:
+    post:
+      tags:
+        - "posts"
+      summary: create posts
+      description: create posts
+      operationId: create-posts
+      requestBody:
+        $ref: "#/components/requestBodies/CreatePosts"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/PostsModel"
+
+components:
+  schemas:
+    BasicResponse:
+      title: BasicResponse
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "OK!"
+    UserModel:
+      title: UserModel
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Luthfi
+        email:
+          type: string
+          example: l@gmail.com
+    Pagination:
+      title: Pagination
+      type: object
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              example: ""
+            prev:
+              type: string
+              example: ""
+        totalItems:
+          type: number
+    PostsModel:
+      title: PostsModel
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Judul post
+        body:
+          type: string
+          example: isi post
+        category:
+          type: array
+          example: ["JS", "API", "Express"]
+        authorId:
+          type: integer
+          example: 1
+
+  requestBodies:
+    CreateUser:
+      description: Create User body example
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: Luthfi
+              email:
+                type: string
+                example: l@gmail.com
+      required: true
+    CreatePosts:
+      description: Create post body example
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: Judul post
+              body:
+                type: string
+                example: isi post
+              category:
+                type: array
+                example: ["JS", "API", "Express"]
+              authorId:
+                type: integer
+                example: 1
+      required: true
